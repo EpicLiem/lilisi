@@ -8,7 +8,9 @@ from stepper_motors_juanmf1.StepperMotor import GenericStepper
 
 from l298n_motor_driver import L298NMotorDriver
 
-LEFT_PINS = (23, 24, 25, 8)
+# L298N input GPIO order is IN1, IN3, IN2, IN4 so the driver sequence
+# matches the motor table order: Pin 1, Pin 3, Pin 2, Pin 4.
+LEFT_PINS = (18, 23, 24, 25)
 RIGHT_PINS = (14, 15, 18, 12)
 
 
@@ -62,7 +64,7 @@ class Car:
 
 def main():
     car = Car()
-    car.move(100,100)
+    car.move(100, 100)
     # while True:
     #     direction = check_direction()
     #     if direction == -1:
