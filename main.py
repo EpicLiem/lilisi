@@ -64,7 +64,7 @@ class Car:
 
 def main():
     car = Car()
-    car.move(100, 100)
+    car.move(10000, 10000)
     # while True:
     #     direction = check_direction()
     #     if direction == -1:
