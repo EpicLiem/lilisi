@@ -2,17 +2,14 @@ from stepper_motors_juanmf1.AccelerationStrategy import (
     DynamicDelayPlanner,
     ExponentialAcceleration,
 )
-from stepper_motors_juanmf1.Controller import (
-    BipolarStepperMotorDriver,
-    DRV8825MotorDriver,  # equivalent to a4988
-)
+from stepper_motors_juanmf1.Controller import BipolarStepperMotorDriver
 from stepper_motors_juanmf1.Navigation import DynamicNavigation
 from stepper_motors_juanmf1.StepperMotor import GenericStepper
 
-LEFT_DIR = 23
-LEFT_STEP = 24
-RIGHT_DIR = 14
-RIGHT_STEP = 15
+from l298n_motor_driver import L298NMotorDriver
+
+LEFT_PINS = (23, 24, 25, 8)
+RIGHT_PINS = (14, 15, 18, 12)
 
 
 def check_direction():
@@ -23,11 +20,11 @@ def check_direction():
 class Car:
     # using a class because it would be messy to try and keep track of everything otherwise
     def __init__(self):
-        self.left = Car.setupDriver(directionGpioPin=LEFT_DIR, stepGpioPin=LEFT_STEP)
+        self.left = Car.setupDriver(inputPins=LEFT_PINS)
         self.leftPos = 0
-        self.right = Car.setupDriver(directionGpioPin=RIGHT_DIR, stepGpioPin=RIGHT_STEP)
+        self.right = Car.setupDriver(inputPins=RIGHT_PINS)
         self.rightPos = 0
-        
+
     def leftPosListener(self, currentPosition, targetPosition, direction, multiprocessObserver=None):
         self.leftPos = currentPosition
 
@@ -39,16 +36,16 @@ class Car:
         self.right.signedSteps(rightDelta, fn=self.rightPosListener)
 
     @staticmethod
-    def setupDriver(*, directionGpioPin, stepGpioPin):
+    def setupDriver(*, inputPins):
         stepperMotor = GenericStepper(
             maxPps=200,
             minPps=10,
             minSleepTime=1 / 200,
             maxSleepTime=1 / 10,
-        )  # We'll need to test this but I just added somethign resonable
+        )  # We'll need to test this but I just added something reasonable.
         delayPlanner = DynamicDelayPlanner()
         navigation = DynamicNavigation()
-        
+
         acceleration = ExponentialAcceleration(
             stepperMotor=stepperMotor,
             delayPlanner=delayPlanner,
@@ -56,24 +53,24 @@ class Car:
                 BipolarStepperMotorDriver.DEFAULT_STEPPING_MODE
             ],
         )
-        return DRV8825MotorDriver(
+        return L298NMotorDriver(
             stepperMotor=stepperMotor,
             accelerationStrategy=acceleration,
-            directionGpioPin=directionGpioPin,
-            stepGpioPin=stepGpioPin,
+            stepGpioPin=inputPins,
             navigation=navigation,
         )
 
 def main():
     car = Car()
-    while True:
-        direction = check_direction()
-        if direction == -1:
-            car.move(300, 0)
-        if direction == 0:
-            car.move(300, 300)
-        if direction == 1:
-            car.move(0, 300)
+    car.move(100,100)
+    # while True:
+    #     direction = check_direction()
+    #     if direction == -1:
+    #         car.move(300, 0)
+    #     if direction == 0:
+    #         car.move(300, 300)
+    #     if direction == 1:
+    #         car.move(0, 300)
 
 
 if __name__ == "__main__":
