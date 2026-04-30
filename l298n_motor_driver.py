@@ -10,16 +10,17 @@ class L298NMotorDriver(UnipolarMotorDriver):
         UnipolarMotorDriver.Sequence.SUPPORTED_TYPES.append(SEQUENCE)
     if SEQUENCE not in UnipolarMotorDriver.Sequence.PINS_USED_2_TYPES_MAP[4]:
         UnipolarMotorDriver.Sequence.PINS_USED_2_TYPES_MAP[4].append(SEQUENCE)
-    UnipolarMotorDriver.Sequence.SEQUENCE_2_MICROSTEPPING_MODE_MAP[SEQUENCE] = "Full"
+    UnipolarMotorDriver.Sequence.SEQUENCE_2_MICROSTEPPING_MODE_MAP[SEQUENCE] = "Half"
     UnipolarMotorDriver.Sequence.STEP_SEQUENCE[SEQUENCE] = [
-        # Motor datasheet order: Pin 1, Pin 3, Pin 2, Pin 4.
-        # Wire GPIOs as L298N inputs for those outputs: IN1, IN3, IN2, IN4.
+        # Normal L298N input order: IN1, IN2, IN3, IN4.
+        # This encodes the motor table columns Pin 1, Pin 3, Pin 2, Pin 4
+        # assuming OUT1->Pin 1, OUT2->Pin 2, OUT3->Pin 3, OUT4->Pin 4.
         (1, 0, 0, 0),
-        (1, 1, 0, 0),
-        (0, 1, 0, 0),
-        (0, 1, 1, 0),
+        (1, 0, 1, 0),
         (0, 0, 1, 0),
-        (0, 0, 1, 1),
+        (0, 1, 1, 0),
+        (0, 1, 0, 0),
+        (0, 1, 0, 1),
         (0, 0, 0, 1),
         (1, 0, 0, 1),
     ]
