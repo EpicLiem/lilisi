@@ -6,7 +6,10 @@ class L298NMotorDriver(UnipolarMotorDriver):
 
     SEQUENCE = "L298N-Half"
 
-    UnipolarMotorDriver.Sequence.SUPPORTED_TYPES.append(SEQUENCE)
+    if SEQUENCE not in UnipolarMotorDriver.Sequence.SUPPORTED_TYPES:
+        UnipolarMotorDriver.Sequence.SUPPORTED_TYPES.append(SEQUENCE)
+    if SEQUENCE not in UnipolarMotorDriver.Sequence.PINS_USED_2_TYPES_MAP[4]:
+        UnipolarMotorDriver.Sequence.PINS_USED_2_TYPES_MAP[4].append(SEQUENCE)
     UnipolarMotorDriver.Sequence.SEQUENCE_2_MICROSTEPPING_MODE_MAP[SEQUENCE] = "Half"
     UnipolarMotorDriver.Sequence.STEP_SEQUENCE[SEQUENCE] = [
         # Motor datasheet order: Pin 1, Pin 3, Pin 2, Pin 4.
