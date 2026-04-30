@@ -40,8 +40,8 @@ class Car:
     @staticmethod
     def setupDriver(*, inputPins):
         stepperMotor = GenericStepper(
-            maxPps=2000,
-            minPps=1600,
+            maxPps=1000,
+            minPps=400,
             minSleepTime=1 / 200,
             maxSleepTime=1 / 10,
         )  # We'll need to test this but I just added something reasonable.
