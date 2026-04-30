@@ -10,7 +10,7 @@ from l298n_motor_driver import L298NMotorDriver
 
 # L298N input GPIO order is IN1, IN2, IN3, IN4.
 LEFT_PINS = (18, 23, 24, 25)
-RIGHT_PINS = (14, 15, 18, 12)
+RIGHT_PINS = (14, 15, 19, 12)
 L298N_STEPPING_MODE = "Half"
 
 
