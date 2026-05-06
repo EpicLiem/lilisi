@@ -1,5 +1,6 @@
 import json
 import math
+import signal
 import sys
 from pathlib import Path
 
@@ -224,7 +225,13 @@ def main():
         raise ValueError("Expected benchmark: straight, circle, figure8, spin, or train")
 
 
+def handle_interrupt(signalNumber, frame):
+    turn_all_magnets_off()
+    raise KeyboardInterrupt
+
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, handle_interrupt)
     try:
         main()
     except KeyboardInterrupt:
