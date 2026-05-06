@@ -3,7 +3,7 @@ import math
 import sys
 from pathlib import Path
 
-from car import DEFAULT_CALIBRATION, WHEEL_BASE_CM, Car
+from car import DEFAULT_CALIBRATION, WHEEL_BASE_CM, Car, turn_all_magnets_off
 
 CHECKPOINT_PATH = Path("calibration_checkpoints.json")
 TRAINING_GAIN = 0.35
@@ -225,4 +225,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        turn_all_magnets_off()
+        raise

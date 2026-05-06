@@ -1,4 +1,6 @@
 import math
+from contextlib import suppress
+from importlib import import_module
 
 from stepper_motors_juanmf1.AccelerationStrategy import (
     DynamicDelayPlanner,
@@ -13,6 +15,7 @@ from l298n_motor_driver import L298NMotorDriver
 # L298N input GPIO order is IN1, IN2, IN3, IN4.
 LEFT_PINS = (18, 23, 24, 25)
 RIGHT_PINS = (27, 22, 5, 13)
+MAGNET_PINS = LEFT_PINS + RIGHT_PINS
 L298N_STEPPING_MODE = "Half"
 
 WHEEL_DIAMETER_CM = 30
@@ -50,6 +53,23 @@ def validate_motor_pins(*pin_groups):
     duplicates = {pin for pin in pins if pins.count(pin) > 1}
     if duplicates:
         raise ValueError(f"GPIO pins cannot be shared between motors: {sorted(duplicates)}")
+
+
+def turn_all_magnets_off():
+    try:
+        GPIO = import_module("RPi.GPIO")
+    except (ImportError, RuntimeError):
+        return
+
+    with suppress(RuntimeError):
+        GPIO.setwarnings(False)
+        if GPIO.getmode() is None:
+            GPIO.setmode(GPIO.BCM)
+
+    for pin in MAGNET_PINS:
+        with suppress(RuntimeError):
+            GPIO.setup(pin, GPIO.OUT)
+            GPIO.output(pin, GPIO.LOW)
 
 
 def normalize_angle_radians(angle):
@@ -109,6 +129,17 @@ class Car:
 
     def rightPosListener(self, currentPosition, targetPosition, direction, multiprocessObserver=None):
         self.rightPos = currentPosition
+
+    def turnMagnetsOff(self):
+        for driver in (self.left, self.right):
+            for methodName in ("release", "disable", "stop", "cleanup"):
+                method = getattr(driver, methodName, None)
+                if callable(method):
+                    with suppress(Exception):
+                        method()
+                    break
+
+        turn_all_magnets_off()
 
     def move(self, leftDelta, rightDelta):
         self.left.signedSteps(leftDelta, fn=self.leftPosListener)
