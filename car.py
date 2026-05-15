@@ -189,7 +189,7 @@ class Car:
         avoidDistanceCm=30,
         forwardStepCm=8,
         reverseStepCm=6,
-        turnAngleDegrees=35,
+        turnAngleDegrees=90,
         sampleDelaySeconds=0.05,
     ):
         from gpiozero import DistanceSensor  # pyright: ignore[reportMissingImports]
