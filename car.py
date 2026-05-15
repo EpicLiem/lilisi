@@ -185,10 +185,10 @@ class Car:
     def avoidObstacles(
         self,
         *,
-        stopDistanceCm=10,
-        avoidDistanceCm=30,
-        forwardStepCm=8,
-        reverseStepCm=6,
+        stopDistanceCm=15,
+        avoidDistanceCm=50,
+        forwardStepCm=16,
+        reverseStepCm=12,
         turnAngleDegrees=90,
         sampleDelaySeconds=0.05,
     ):
