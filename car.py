@@ -13,7 +13,7 @@ from stepper_motors_juanmf1.StepperMotor import GenericStepper
 from l298n_motor_driver import L298NMotorDriver
 
 # L298N input GPIO order is IN1, IN2, IN3, IN4.
-LEFT_PINS = (18, 23, 24, 25).__reversed__
+LEFT_PINS = (25, 24, 23, 18) # (18, 23, 24, 25)
 RIGHT_PINS = (22, 13, 5, 27)
 MAGNET_PINS = LEFT_PINS + RIGHT_PINS
 L298N_STEPPING_MODE = "Half"
