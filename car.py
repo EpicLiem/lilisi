@@ -14,15 +14,17 @@ from l298n_motor_driver import L298NMotorDriver
 
 # L298N input GPIO order is IN1, IN2, IN3, IN4.
 LEFT_PINS = (18, 23, 24, 25)
-RIGHT_PINS = (27, 22, 5, 13)
+RIGHT_PINS = (22, 13, 5, 27)
 MAGNET_PINS = LEFT_PINS + RIGHT_PINS
 L298N_STEPPING_MODE = "Half"
 
-WHEEL_DIAMETER_CM = 30
+WHEEL_DIAMETER_CM = 6.7
 WHEEL_BASE_CM = 35
 CAR_WEIGHT_LB = 3
 MOTOR_STEPS_PER_REVOLUTION = 200
 PATH_SAMPLE_CM = 5
+RIGHT_DISTANCE_SENSOR_PINS = {"echo": 19, "trigger": 6}
+LEFT_DISTANCE_SENSOR_PINS = {"echo": 16, "trigger": 12}
 
 DEFAULT_CALIBRATION = {
     "left_steps_per_cm_scale": 1.0,
@@ -179,6 +181,46 @@ class Car:
 
     def turnDegrees(self, angleDegrees):
         self.turnRadians(math.radians(angleDegrees))
+
+    def avoidObstacles(
+        self,
+        *,
+        stopDistanceCm=10,
+        avoidDistanceCm=30,
+        forwardStepCm=8,
+        reverseStepCm=6,
+        turnAngleDegrees=35,
+        sampleDelaySeconds=0.05,
+    ):
+        from gpiozero import DistanceSensor  # pyright: ignore[reportMissingImports]
+        from time import sleep
+
+        rightSensor = DistanceSensor(**RIGHT_DISTANCE_SENSOR_PINS)
+        leftSensor = DistanceSensor(**LEFT_DISTANCE_SENSOR_PINS)
+
+        try:
+            while True:
+                rightDistanceCm = rightSensor.distance * 100
+                leftDistanceCm = leftSensor.distance * 100
+
+                if rightDistanceCm < stopDistanceCm and leftDistanceCm < stopDistanceCm:
+                    self.turnMagnetsOff()
+                    sleep(sampleDelaySeconds)
+                elif rightDistanceCm < avoidDistanceCm and leftDistanceCm < avoidDistanceCm:
+                    self.driveDistanceCm(-reverseStepCm)
+                    self.turnDegrees(turnAngleDegrees)
+                elif rightDistanceCm < avoidDistanceCm:
+                    self.turnDegrees(turnAngleDegrees)
+                elif leftDistanceCm < avoidDistanceCm:
+                    self.turnDegrees(-turnAngleDegrees)
+                else:
+                    self.driveDistanceCm(forwardStepCm)
+
+                sleep(sampleDelaySeconds)
+        finally:
+            rightSensor.close()
+            leftSensor.close()
+            self.turnMagnetsOff()
 
     def followSegmentCm(self, distanceCm, headingDeltaRadians):
         startingHeading = self.headingRadians

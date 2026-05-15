@@ -221,8 +221,11 @@ def main():
         else:
             initialMeasurement = None
         train(trainingBenchmark, initialMeasurement=initialMeasurement)
+    elif benchmark == "avoid":
+        car = Car(calibration=load_training_state()["calibration"])
+        car.avoidObstacles()
     else:
-        raise ValueError("Expected benchmark: straight, circle, figure8, spin, or train")
+        raise ValueError("Expected benchmark: straight, circle, figure8, spin, train, or avoid")
 
 
 def handle_interrupt(signalNumber, frame):
